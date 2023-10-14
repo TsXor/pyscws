@@ -1,0 +1,3 @@
+[submodule "src/scws"]
+	path = src/scws
+	url = https://github.com/TsXor/scws.git
