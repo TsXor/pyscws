@@ -73,7 +73,7 @@ class pyscws_build_ext(build_ext):
     def build_extension(self, ext) -> None:
         if ext.extra_compile_args is None: ext.extra_compile_args = []
         if self.compiler.compiler_type == 'msvc':
-            ext.extra_compile_args = [*ext.extra_compile_args, '/utf-8']
+            ext.extra_compile_args = [*ext.extra_compile_args, '/utf-8', '/w']
         elif self.compiler.compiler_type == 'mingw32':
             ext.extra_compile_args = [*ext.extra_compile_args, '-w']
         if isinstance(ext, PyScwsExtension):
