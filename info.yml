@@ -1,0 +1,29 @@
+name: pyscws
+version: '0.0.1'
+description: SCWS，但是python3
+author: TsXor
+author_email: N/A
+url: https://github.com/TsXor/pyscws
+license: MIT
+
+classifiers:
+  Intended Audience:
+    - Developers
+  License:
+    OSI Approved:
+      - MIT License
+  Operating System:
+    - OS Independent
+  Natural Language:
+    - Chinese (Simplified)
+    - Chinese (Traditional)
+  Programming Language:
+    Python:
+      - '3'
+  Topic:
+    Text Processing:
+      - Indexing
+
+keywords:
+  - tokenizing
+  - Chinese word segementation

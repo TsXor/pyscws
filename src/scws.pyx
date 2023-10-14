@@ -1,6 +1,16 @@
 # cython: language_level=3
 cimport cscws
+import platform
+from pathlib import Path
 
+
+if platform.system().lower() == 'windows':
+    fpath_encoding = 'ansi'
+else:
+    fpath_encoding = 'utf-8'
+
+cpdef int _get_int_size():
+    return sizeof(int)
 
 cdef class ScwsTopwords:
     '''
@@ -52,6 +62,14 @@ cdef class ScwsTopwordStructView:
     @property
     def attr(self) -> bytes:
         return <bytes>(self._c_obj.attr)
+    
+    def to_dict(self):
+        return {
+            'word': self._c_obj.word,
+            'weight': self._c_obj.weight,
+            'times': self._c_obj.times,
+            'attr': self._c_obj.attr,
+        }
 
 
 cdef class ScwsResults:
@@ -73,15 +91,15 @@ cdef class ScwsResultsIterator:
     cdef ScwsResults _source
     cdef cscws.scws_result* _cur
 
-    def __next__(self) -> ScwsTopwordResultView:
+    def __next__(self) -> ScwsResultView:
         if self._cur == NULL: raise StopIteration
-        ret = ScwsTopwordResultView()
+        ret = ScwsResultView()
         ret._source = self._source
         ret._c_obj = self._cur
         self._cur = self._cur.next
         return ret
 
-cdef class ScwsTopwordResultView:
+cdef class ScwsResultView:
     '''
     同上。
     '''
@@ -104,16 +122,32 @@ cdef class ScwsTopwordResultView:
     def attr(self) -> bytes:
         return <bytes>(self._c_obj.attr)
 
+    def to_dict(self):
+        return {
+            'off': self._c_obj.off,
+            'idf': self._c_obj.idf,
+            'len': self._c_obj.len,
+            'attr': self._c_obj.attr,
+        }
+
 
 cdef class ScwsTokenizer:
-    SCWS_IGN_SYMBOL = 0x01
-    SCWS_DEBUG = 0x08
-    SCWS_DUALITY = 0x10
+    SCWS_IGN_SYMBOL     = 0x01
+    SCWS_DEBUG          = 0x08
+    SCWS_DUALITY        = 0x10
+    SCWS_MULTI_NONE     = 0x00000   # nothing
+    SCWS_MULTI_SHORT	= 0x01000   # split long words to short words from left to right
+    SCWS_MULTI_DUALITY	= 0x02000   # split every long words(3 chars?) to two chars
+    SCWS_MULTI_ZMAIN    = 0x04000   # split to main single chinese char atr = j|a|n?|v?
+    SCWS_MULTI_ZALL     = 0x08000   # attr = ** , all split to single chars
+    SCWS_MULTI_MASK     = 0xff000   # mask check for multi set
 
     cdef cscws.scws_tokenizer* _c_obj
+    cdef str _charset
 
     def __cinit__(self):
         self._c_obj = cscws.scws_new()
+        self._charset = 'gbk'
     
     def __dealloc__(self):
         cscws.scws_free(self._c_obj)
@@ -172,15 +206,32 @@ cdef class ScwsTokenizer:
         cscws.scws_set_debug(self._c_obj, <int>debug)
     
     @property
+    def multi_vals(self) -> int:
+        return self._c_obj.mode & self.SCWS_MULTI_MASK
+    
+    @multi_vals.setter
+    def multi_vals(self, multi_vals: int):
+        cscws.scws_set_multi(self._c_obj, multi_vals)
+    
+    @property
     def modes(self) -> int:
         return self._c_obj.mode
     
     @modes.setter
     def modes(self, modes: int):
-        cscws.scws_set_multi(self._c_obj, modes)
+        self._c_obj.mode = modes
+    
+    @property
+    def charset(self) -> str:
+        return self._charset
+    
+    @charset.setter
+    def charset(self, charset: str):
+        cscws.scws_set_charset(self._c_obj, charset.encode('ascii'))
+        self._charset = charset
 
-    def send_text(self, text: bytes, len: int):
-        cscws.scws_send_text(self._c_obj, text, len)
+    def send_text(self, text: bytes):
+        cscws.scws_send_text(self._c_obj, text, len(text))
 
     def get_result(self) -> ScwsResults:
         ret = ScwsResults()
@@ -199,3 +250,12 @@ cdef class ScwsTokenizer:
     
     def has_word(self, xattr: bytes) -> int:
         return cscws.scws_has_word(self._c_obj, xattr)
+    
+    def add_dict(self, fpath: str | Path, mode: int) -> int:
+        return cscws.scws_add_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+
+    def set_dict(self, fpath: str | Path, mode: int) -> int:
+        return cscws.scws_set_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+    
+    def set_rule(self, fpath: str | Path):
+        cscws.scws_set_rule(self._c_obj, str(fpath).encode(encoding=fpath_encoding))
