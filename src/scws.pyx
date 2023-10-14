@@ -131,6 +131,8 @@ cdef class ScwsResultView:
         }
 
 
+class ScwsResultEnd(Exception): pass
+
 cdef class ScwsTokenizer:
     SCWS_IGN_SYMBOL     = 0x01
     SCWS_DEBUG          = 0x08
@@ -234,9 +236,19 @@ cdef class ScwsTokenizer:
         cscws.scws_send_text(self._c_obj, text, len(text))
 
     def get_result(self) -> ScwsResults:
+        cdef cscws.scws_result* result = cscws.scws_get_result(self._c_obj)
+        if (result == NULL): raise ScwsResultEnd
         ret = ScwsResults()
-        ret.head = cscws.scws_get_result(self._c_obj)
+        ret.head = result
         return ret
+    
+    def get_result_all(self):
+        while True:
+            try:
+                for r in self.get_result():
+                    yield r
+            except ScwsResultEnd:
+                break
     
     def get_tops(self, limit: int, xattr: bytes) -> ScwsTopwords:
         ret = ScwsTopwords()
