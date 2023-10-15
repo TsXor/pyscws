@@ -2,7 +2,7 @@ name: pyscws
 version: '0.0.1'
 description: SCWS，但是python3
 author: TsXor
-author_email: N/A
+author_email: zhang050525@qq.com
 url: https://github.com/TsXor/pyscws
 license: MIT
 
@@ -27,3 +27,7 @@ classifiers:
 keywords:
   - tokenizing
   - Chinese word segementation
+
+# 这里记录了每个版本的PyPI重传次数，未记录的为0。
+version_reuploads:
+  '0.0.1': 1

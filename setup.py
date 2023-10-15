@@ -86,6 +86,9 @@ def read_info(info_path: Path, readme_path: Path):
     info['keywords'] = ','.join(info['keywords'])
     with open(readme_path, mode='rt', encoding='utf-8') as readme_fp:
         info['long_description'] = readme_fp.read()
+    version = info['version']
+    version_reupload = info['version_reuploads'].get(version, 0)
+    info['version'] = '%s.%d' % (version, version_reupload)
     return info
 
 class pyscws_build_ext(build_ext):
@@ -159,6 +162,6 @@ setup(
     package_data={'pyscws': ['scws.pyi']},
     **read_info(
         PROJECT_HOME / 'info.yml',
-        PROJECT_HOME / 'README.md',
+        PROJECT_HOME / 'README.rst',
     )
 )

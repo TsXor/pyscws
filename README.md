@@ -23,3 +23,8 @@ result = list(r.to_dict() for r in stk.get_result_all())
 ```python
 [{'off': 0, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 1, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 3, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 4, 'idf': 0.0, 'len': 5, 'attr': b'un'}, {'off': 10, 'idf': 0.0, 'len': 2, 'attr': b'un'}, {'off': 12, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 16, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 17, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 19, 'idf': 1.732867956161499, 'len': 2, 'attr': b'en'}, {'off': 40, 'idf': 0.0, 'len': 4, 'attr': b'un'}, {'off': 48, 'idf': 0.0, 'len': 3, 'attr': b'un'}, {'off': 51, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 60, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 68, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 91, 'idf': 0.0, 'len': 1, 'attr': b'en'}]
 ```
+
+## 版本
+PyPI对于每个版本只允许存在一个文件，即使删除release也无法重传。  
+由于作者时常大意，他就是要重传，因此在版本最后加一个“重传号”。  
+即x.y.z.a与x.y.z.b事实上都是x.y.z版本。  
