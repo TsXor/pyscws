@@ -12,16 +12,17 @@ SCWS的python接口，用Cython3写成。
 ```python
 import pyscws
 text = "Hello, 我名字叫李那曲是一个中国人, 我有时买Q币来玩, 我还听说过C#语言"
+btext = text.encode(encoding='utf-8')
 stk = pyscws.ScwsTokenizer()
 stk.charset = 'utf8'
 stk.set_dict(r"E:\Users\23Xor\Desktop\dict.utf8.xdb", pyscws.SCWS_XDICT_XDB)
 stk.set_rule(r"E:\Users\23Xor\Desktop\rules.utf8.ini")
-stk.send_text(text.encode(encoding='utf-8'))
-result = list(r.to_dict() for r in stk.get_result_all())
+stk.send_text(btext)
+tokens = [btext[r.off:r.off+r.len].decode() for r in stk.get_result_all()]
+print(tokens)
 ```
-能跑通，就是结果比较幽默（Windows）：
 ```python
-[{'off': 0, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 1, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 3, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 4, 'idf': 0.0, 'len': 5, 'attr': b'un'}, {'off': 10, 'idf': 0.0, 'len': 2, 'attr': b'un'}, {'off': 12, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 16, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 17, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 19, 'idf': 1.732867956161499, 'len': 2, 'attr': b'en'}, {'off': 40, 'idf': 0.0, 'len': 4, 'attr': b'un'}, {'off': 48, 'idf': 0.0, 'len': 3, 'attr': b'un'}, {'off': 51, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 60, 'idf': 0.0, 'len': 1, 'attr': b'un'}, {'off': 68, 'idf': 0.0, 'len': 1, 'attr': b'en'}, {'off': 91, 'idf': 0.0, 'len': 1, 'attr': b'en'}]
+['Hello', ',', '我', '名字', '叫', '李', '那曲', '是', '一个', '中国人', ',', '我', '有时', '买', 'Q币', '来', '玩', ',', '我', '还', '听说', '过', 'C#', '语言']
 ```
 
 ## 版本
