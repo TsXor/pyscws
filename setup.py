@@ -156,6 +156,7 @@ setup(
     },
     packages=['pyscws'],
     package_dir={'pyscws': 'src'},
+    package_data={'pyscws': ['scws.pyi']},
     **read_info(
         PROJECT_HOME / 'info.yml',
         PROJECT_HOME / 'README.md',
