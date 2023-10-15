@@ -115,7 +115,7 @@ cdef class ScwsResultView:
         return self._c_obj.idf
 
     @property
-    def len_(self) -> int:
+    def len(self) -> int:
         return self._c_obj.len
 
     @property
