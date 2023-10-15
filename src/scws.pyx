@@ -4,6 +4,8 @@ import platform
 from pathlib import Path
 
 
+VALID_CHARSETS = {"utf8", "utf-8", "gb2312", "gbk", "big5", "big-5"}
+
 if platform.system().lower() == 'windows':
     fpath_encoding = 'ansi'
 else:
@@ -229,6 +231,7 @@ cdef class ScwsTokenizer:
     
     @charset.setter
     def charset(self, charset: str):
+        if charset not in VALID_CHARSETS: raise ValueError
         cscws.scws_set_charset(self._c_obj, charset.encode('ascii'))
         self._charset = charset
 
@@ -260,14 +263,17 @@ cdef class ScwsTokenizer:
         ret.head = cscws.scws_get_words(self._c_obj, xattr)
         return ret
     
-    def has_word(self, xattr: bytes) -> int:
-        return cscws.scws_has_word(self._c_obj, xattr)
+    def has_word(self, xattr: bytes) -> bool:
+        return bool(cscws.scws_has_word(self._c_obj, xattr))
     
-    def add_dict(self, fpath: str | Path, mode: int) -> int:
-        return cscws.scws_add_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+    def add_dict(self, fpath: str | Path, mode: int) -> None:
+        cdef int status = cscws.scws_add_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+        if status == -1: raise ValueError
 
-    def set_dict(self, fpath: str | Path, mode: int) -> int:
-        return cscws.scws_set_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+    def set_dict(self, fpath: str | Path, mode: int) -> None:
+        cdef int status = cscws.scws_set_dict(self._c_obj, str(fpath).encode(encoding=fpath_encoding), mode)
+        if status == -1: raise ValueError
     
     def set_rule(self, fpath: str | Path):
         cscws.scws_set_rule(self._c_obj, str(fpath).encode(encoding=fpath_encoding))
+        if self._c_obj.r == NULL: raise ValueError
